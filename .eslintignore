@@ -1,0 +1,14 @@
+coverage/*
+cypress/plugins/*
+cypress/support/*
+**/dist/*
+lib/*
+node_modules/*
+**/node_modules/*
+public/*
+build/*
+
+.eslintrc.js
+postcss.config.cjs
+*.config.js
+*.config.ts

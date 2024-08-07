@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package perseus.api.v1.map;
+
+message LanePoint {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+
+// 人工清扫区域
+message CleanArea {
+  int32 id = 1;
+  string name = 2;
+  LanePoint position = 3;
+  repeated LanePoint polygon = 4;
+}
+
+// 环卫站点
+message Site  {
+  int32 id = 1;
+  string name = 2;
+  SiteType type = 3;
+  LanePoint position=4;
+
+  enum SiteType {
+    None = 0;
+    CleanSite = 1;       // 清洗点
+    ChargingSite= 2;   // 充电站
+    ParkingSite= 3;     // 停车点
+    TransferSite = 4;    // 中转站
+    WaterSupplySite = 5; // 加水站
+    MaintenanceSite=6; // 维修站
+    GasSite = 7;        // 加油站
+  };
+}
+
+// 地图头部
+message Header {
+  int32 major_version = 1;
+  int32 minor_version = 2;
+  string name = 3;
+  string date = 4;
+
+  enum Coordinate {
+    None = 0;
+    BD09 = 1;
+    WGS84 = 2;
+  };
+  Coordinate coordinate = 5;
+}
+
+// 地图路口
+message Junction {
+  int32 id = 1;
+  string name = 2;
+  LanePoint position = 3;
+  repeated LanePoint polygon= 4;
+
+  message ConnectionInfo {
+    int32 id = 1;
+    string road_in = 2;
+    string road_out = 3;
+  };
+  repeated ConnectionInfo connection = 5;
+
+}
+
+// 地图车道
+message Lane {
+  int32 id = 1;
+
+  enum LaneType {
+    NONE = 0;
+    CityDriving = 1;
+    SideWalk = 2;
+    Shoulder = 3;
+    Bus = 4;
+    Biking = 5;
+    Parking = 6;
+    Bidirectional = 7;
+  };
+  LaneType type = 2;
+
+  LineCurve central_line = 3;
+  float width = 4;
+}
+
+
+// 地图基本元素：线;  线是由多个 直线线段或者圆弧段 组成
+message LineCurve {
+  repeated GeometryLine segments = 1;
+  float length = 2;
+
+
+  message StraightLine {
+    float hdg = 1;
+    float length = 2;
+    float start_s = 3;
+    LanePoint position = 4;
+  }
+
+  message ArcLine {
+    float hdg = 1;
+    float length = 2;
+    float start_s = 3;
+    LanePoint position = 4;
+    float curvature = 5;
+  }
+  message GeometryLine {
+    StraightLine straight = 1;
+    ArcLine arc = 2;
+  }
+}
+
+// 地图道路
+message Road {
+  enum RoadType {
+    None = 0;
+    Major = 1; // 主道
+    Minor = 2; // 辅道
+    SideWalk = 3;// 人行道
+  };
+  message RoadLink {
+    string link_type = 1;// junction or road
+    string element_type = 2; // predecessor or successor
+    int32 element_id = 3; // id
+  }
+
+  int32 id = 1;
+  string name = 2;
+  float length = 3;
+  RoadType type = 4;
+  LineCurve central_line = 5;
+  repeated Lane left_lanes = 6;
+  repeated Lane right_lanes = 7;
+
+  repeated RoadLink link = 8;
+}
+
+
+message Map {
+  Header header = 1;
+
+  map<string, Road> roads = 2;
+  map<string, Junction> junctions = 3;
+  map<string, CleanArea> clean_areas = 4;
+  map<string, Site> sites = 5;
+}

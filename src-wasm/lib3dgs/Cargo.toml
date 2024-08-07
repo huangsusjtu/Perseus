@@ -1,0 +1,61 @@
+[package]
+name = "lib3dgs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[features]
+default = [
+    "console_error_panic_hook",
+    #"async_splat_stream",
+]
+async_splat_stream = []
+
+[dependencies]
+js-sys = "0.3.69"
+wasm-bindgen = "0.2.92"
+wasm-bindgen-futures = "0.4.38"
+wasm_thread = { version = "0.2.0", features = ["es_modules"] }
+
+bus = "2.4.1"
+three-d = { version = "0.16.3", features = ["egui-gui"] }
+rfd = "0.12.1"
+half = "2.3.1"
+console_error_panic_hook = { version = "0.1.7", optional = true }
+num-format = "0.4.4"
+
+[dependencies.web-sys]
+features = [
+    'console',
+    'Document',
+    'Element',
+    'HtmlCanvasElement',
+    'WebGlBuffer',
+    'WebGlVertexArrayObject',
+    'WebGl2RenderingContext',
+    'WebGlProgram',
+    'WebGlShader',
+
+    'Headers',
+    'Request',
+    'RequestInit',
+    'RequestMode',
+    'RequestCredentials',
+    'Response',
+    'Window',
+    'ReadableStream',
+    'ReadableStreamDefaultReader',
+
+    'Worker',
+    'MessageEvent',
+]
+
+[profile.release]
+opt-level = "z"
+lto = true
+debug = false

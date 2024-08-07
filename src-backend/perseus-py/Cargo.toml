@@ -1,0 +1,24 @@
+[package]
+name = "perseus-py"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "perseus"
+crate-type = ["cdylib"]
+
+[dependencies]
+perseus-api= { path = "../perseus-api"}
+libmap = { path = "../libmap"}
+libutil = { path = "../libutil"}
+libsimulator = { path = '../libsimulator' }
+libmodel = { path = "../libmodel"}
+
+pyo3 = "0.22.0"
+once_cell = "1.19.0"
+smol = "2.0.0"
+lazy_static.workspace = true
+
+[features]
+default=[]

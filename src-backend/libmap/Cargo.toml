@@ -1,0 +1,27 @@
+[package]
+name = "libmap"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libformat = { path = '../libformat' }
+
+anyhow = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+tracing-core = { workspace = true }
+plotlib = "0.5.1"
+plotters = "0.3.6"
+protobuf = { workspace = true }
+
+
+
+
+[build-dependencies]
+protobuf-codegen = "3"
+protoc-rust = "^2.0"
+protobuf = "3"
+
+[features]
+default=[]

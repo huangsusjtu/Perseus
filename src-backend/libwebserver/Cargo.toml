@@ -1,0 +1,32 @@
+[package]
+name = "libwebserver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libutil = { path = '../libutil' }
+libmodel = { path = '../libmodel' }
+libmap = { path = '../libmap' }
+libsimulator = { path = '../libsimulator' }
+
+tracing = { workspace = true }
+chrono = { workspace = true }
+anyhow = { workspace = true }
+dashmap = { workspace = true }
+lazy_static = { workspace = true }
+serde = { workspace = true }
+actix = { workspace = true }
+actix-cors = { workspace = true }
+actix-http = { workspace = true }
+actix-web = { workspace = true }
+actix-web-actors = { workspace = true }
+futures-util = { workspace = true }
+once_cell = { workspace = true }
+async-trait = { workspace = true }
+bytes = { workspace = true }
+actix-multipart = { workspace = true }
+
+
+[features]
+offline = []
+

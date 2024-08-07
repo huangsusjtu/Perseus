@@ -1,0 +1,18 @@
+[package]
+name = "libsimulator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libmap = { path = '../libmap' }
+libformat = { path = '../libformat' }
+libutil = { path = '../libutil' }
+libmodel = { path = '../libmodel' }
+
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+bytes = { workspace = true }
+dashmap = { workspace = true }
+tracing = "0.1.40"
+serde = { version = "1.0.200", features = ["derive"] }
+thiserror = "1.0.60"

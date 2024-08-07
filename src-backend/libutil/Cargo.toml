@@ -1,0 +1,15 @@
+[package]
+name = "libutil"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono.workspace = true
+dashmap.workspace = true
+anyhow.workspace = true
+time.workspace = true
+time-macros.workspace = true
+tracing.workspace = true
+tracing-core.workspace = true
+tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time"] }
+tracing-appender.workspace = true

@@ -1,0 +1,24 @@
+[package]
+name = "libmodel"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+libmap = { path = '../libmap' }
+libformat = { path = '../libformat' }
+
+serde = { workspace = true }
+quick-xml = { workspace = true }
+chrono.workspace = true
+dashmap.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+clap-handler.workspace = true
+clap_complete.workspace = true
+time.workspace = true
+time-macros.workspace = true
+tracing.workspace = true
+tracing-core.workspace = true
+tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time"] }
+tracing-appender.workspace = true

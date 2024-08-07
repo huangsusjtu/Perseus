@@ -1,0 +1,61 @@
+<SanitationScenario>
+  <header name="default" map="base_map" date="2024-08-06 17:23:36.996457998 +08:00"/>
+  <environment temperature="0 25" weather="Fine Rainy" season="Spring" defoliation="false">
+    <work_time range="5 10"/>
+    <work_time range="15 20"/>
+  </environment>
+  <vehicle_group>
+    <vehicle type="Unicorn" name="0">
+      <param max_battery_capacity="100" max_water_capacity="100" max_recharge_mileage="10" max_garbage_capacity="10" max_speed="10" default_battery_consumption="0.1" default_water_consumption="0.1" default_speed="2" charging_rate="20" water_replenish_rate="0.1"/>
+      <state real_time_battery="100" real_time_water="100" real_time_garbage="0" real_time_speed="0" real_time_mileage="0" status="Transfer">
+        <position x="0" y="0"/>
+      </state>
+    </vehicle>
+    <vehicle type="Unicorn" name="0">
+      <param max_battery_capacity="100" max_water_capacity="100" max_recharge_mileage="10" max_garbage_capacity="10" max_speed="10" default_battery_consumption="0.1" default_water_consumption="0.1" default_speed="2" charging_rate="20" water_replenish_rate="0.1"/>
+      <state real_time_battery="100" real_time_water="100" real_time_garbage="0" real_time_speed="0" real_time_mileage="0" status="Transfer">
+        <position x="0" y="0"/>
+      </state>
+    </vehicle>
+  </vehicle_group>
+  <sanitation_group>
+    <sanitation name="">
+      <param max_working_time="10" max_cover_area="1000" cover_efficiency="300" max_garbage_capacity="100" garbage_clean_efficiency="1" max_speed="3"/>
+      <state real_time_working_time="0" real_time_cover_area="0" real_time_garbage="0" real_time_speed="0">
+        <position x="0" y="0"/>
+      </state>
+    </sanitation>
+    <sanitation name="">
+      <param max_working_time="10" max_cover_area="1000" cover_efficiency="300" max_garbage_capacity="100" garbage_clean_efficiency="1" max_speed="3"/>
+      <state real_time_working_time="0" real_time_cover_area="0" real_time_garbage="0" real_time_speed="0">
+        <position x="0" y="0"/>
+      </state>
+    </sanitation>
+  </sanitation_group>
+  <vehicle_task_group>
+    <task name="GlobalPlannerPath" loop="false">
+      <sparse_point work_mode="DrySweep" operation_mode="NONE">
+        <position x="0" y="0"/>
+      </sparse_point>
+    </task>
+  </vehicle_task_group>
+  <man_task_group>
+    <task name="GlobalPlannerArea" loop="false">
+      <clean_area_ids>area-0</clean_area_ids>
+    </task>
+  </man_task_group>
+  <vehicle_to_task>
+    <tuple value="3 3"/>
+    <tuple value="4 4"/>
+  </vehicle_to_task>
+  <sanitation_to_task>
+    <tuple value="3 3"/>
+    <tuple value="4 4"/>
+  </sanitation_to_task>
+  <driver_to_vehicle>
+    <tuple value="3 3"/>
+    <tuple value="4 4"/>
+  </driver_to_vehicle>
+  <traffic_flow_config/>
+  <garbage_config/>
+</SanitationScenario>
