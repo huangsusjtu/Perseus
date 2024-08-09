@@ -63,7 +63,7 @@ impl SDMap {
         let mut sd_map = SDMap::from(opendrive);
         sd_map.generate_kdtree();
 
-        tracing::info!(
+        tracing::debug!(
             "执行时间 SDMap load_map_file: {}ms",
             now.elapsed().as_millis()
         );
@@ -186,7 +186,7 @@ impl SDMap {
             }
         }
         self.road_infos_kdtree = KDTree2d::build(all_road_segment_box);
-        tracing::info!(
+        tracing::debug!(
             "  generate_kdtree lane_infos_kdtree : {}ms",
             now.elapsed().as_millis()
         );
@@ -201,7 +201,7 @@ impl SDMap {
             });
         }
         self.junctions_kdtree = KDTree2d::build(all_junction_box);
-        tracing::info!(
+        tracing::debug!(
             "  generate_kdtree junctions_kdtree_ : {}ms",
             now.elapsed().as_millis()
         );

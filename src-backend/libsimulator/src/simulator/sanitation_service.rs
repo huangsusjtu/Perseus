@@ -28,22 +28,6 @@ impl SanitationSimulatorServiceImpl {
             event_bus,
             simulate_instances: Default::default(),
         });
-        // let copy = instance.clone();
-        // let _ = std::thread::Builder::new()
-        //     .name("sanitation_simulator_core".to_string())
-        //     .spawn(move || loop {
-        //         sleep(SIMULATION_STEP);
-        //         _ = copy
-        //             .simulate_instances
-        //             .iter_mut()
-        //             .filter(|v| v.value().is_running())
-        //             .map(|mut v| {
-        //                 v.value_mut()
-        //                     .step(SIMULATION_STEP)
-        //                     .expect(&format!("sim {} step error", v.key()));
-        //             });
-        //     })
-        //     .expect("create thread for sanitation_simulator error");
         return instance;
     }
 }
@@ -73,19 +57,19 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
             name: name.to_string(),
         });
     }
-    fn get(&self, name: &str) -> OwnResult<Arc<RwLock<SanitationSimulator>>> {
-        if !self.simulate_instances.contains_key(name) {
-            return Err(UniformError::NotFound(name.to_string()));
-        }
-        let t = self.simulate_instances.get(name).unwrap();
-        Ok(t.clone())
-    }
     fn delete(&self, name: &str) -> OwnResult<()> {
         if self.simulate_instances.remove(name).is_none() {
             return Err(UniformError::NotFound(name.to_string()));
         }
 
         return Ok(());
+    }
+    fn get(&self, name: &str) -> OwnResult<Arc<RwLock<SanitationSimulator>>> {
+        if !self.simulate_instances.contains_key(name) {
+            return Err(UniformError::NotFound(name.to_string()));
+        }
+        let t = self.simulate_instances.get(name).unwrap();
+        Ok(t.clone())
     }
 
     fn save(&self, name: &str) -> OwnResult<()> {

@@ -1,4 +1,4 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 use crate::map::waypoint::WayPoint;
 
@@ -12,7 +12,8 @@ pub enum GarbageType {
     WhiteTrash,
 }
 
-#[pyclass(set_all)]
+/// 描述垃圾对象
+#[pyclass(set_all, get_all)]
 pub struct Garbage {
     pub theta: f32,
     pub width: f32,
@@ -21,31 +22,38 @@ pub struct Garbage {
     pub r#type: GarbageType,
 }
 
-///
+/// 全局的垃圾配置信息
 #[pymethods]
-impl GarbageConfig {}
+impl GarbageConfig {
+    #[new]
+    fn new() -> Self {
+        GarbageConfig {}
+    }
+
+    fn __str__(&self) -> String {
+        "GarbageConfig () ".to_string()
+    }
+}
 
 #[pymethods]
 impl Garbage {
-    #[getter]
-    fn theta(&self) -> PyResult<f32> {
-        Ok(self.theta)
+    #[new]
+    fn new() -> Self {
+        Garbage {
+            theta: 0.0,
+            width: 0.0,
+            length: 0.0,
+            position: WayPoint { x: 0.0, y: 0.0 },
+            r#type: GarbageType::FallenLeaves,
+        }
     }
-    #[getter]
-    fn width(&self) -> PyResult<f32> {
-        Ok(self.width)
-    }
-    #[getter]
-    fn length(&self) -> PyResult<f32> {
-        Ok(self.length)
-    }
-    #[getter]
-    fn position(&self) -> PyResult<WayPoint> {
-        Ok(self.position.clone())
-    }
-    #[getter]
-    fn r#type(&self) -> PyResult<GarbageType> {
-        Ok(self.r#type.clone())
+
+    fn __str__(&self) -> String {
+        format!(
+            "Garbage (theta:{:?}, width:{:?}, length:{:?}, position:{:?}, \
+             type:{:?}) ",
+            self.theta, self.width, self.length, self.position, self.r#type
+        )
     }
 }
 

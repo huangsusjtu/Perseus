@@ -1,4 +1,4 @@
-use pyo3::pyclass;
+use pyo3::{pyclass, pymethods};
 
 use crate::map::waypoint::WayPoint;
 
@@ -11,7 +11,8 @@ pub enum VehicleType {
     // todo!(add more vehicle)
 }
 
-#[pyclass(set_all)]
+/// 车辆的固定参数
+#[pyclass(set_all, get_all)]
 #[derive(Clone)]
 pub struct VehicleBaseParam {
     pub max_battery_capacity: f64,
@@ -30,7 +31,8 @@ pub struct VehicleBaseParam {
     pub water_replenish_rate: f64,      // 加水速率, 每分钟增加多少L
 }
 
-#[pyclass(set_all)]
+/// 车辆的实时状态
+#[pyclass(set_all, get_all)]
 #[derive(Clone)]
 pub struct VehicleState {
     pub real_time_battery: f64,
@@ -41,8 +43,20 @@ pub struct VehicleState {
     pub real_time_speed: f64,         // 实时车速
     pub real_time_mileage: f64,       // 实时里程
     pub real_time_position: WayPoint, // 实时坐标
-    pub word_mode: WorkMode,           // 工作状态
-    pub operation_mode: OperationMode,           // 工作状态
+
+    pub status: WorkStatus,            // 工作状态
+    pub work_mode: WorkMode,           // 工作状态
+    pub operation_mode: OperationMode, // 工作状态
+}
+
+#[pyclass(eq, eq_int)]
+#[derive(PartialEq, Clone, Debug)]
+pub enum WorkStatus {
+    Work,
+    Operation,
+    Transfer, // 转场
+    Park,     // 停靠
+    Off,      // 关机
 }
 
 #[pyclass(eq, eq_int)]
@@ -66,7 +80,8 @@ pub enum OperationMode {
     DustbinCleaning = 4, // 垃圾箱自清洁
 }
 
-#[pyclass(set_all)]
+/// 车辆的所有信息
+#[pyclass(set_all, get_all)]
 #[derive(Clone)]
 pub struct Vehicle {
     // 车辆类型
@@ -75,4 +90,149 @@ pub struct Vehicle {
 
     pub param: VehicleBaseParam,
     pub state: VehicleState,
+}
+
+///
+#[pymethods]
+impl Vehicle {
+    #[new]
+    fn new() -> Self {
+        Vehicle {
+            r#type: VehicleType::Unicorn,
+            name: "".to_string(),
+            param: VehicleBaseParam {
+                max_battery_capacity: 0.0,
+                max_water_capacity: 0.0,
+                max_recharge_mileage: 0.0,
+                max_garbage_capacity: 0.0,
+                max_speed: 0.0,
+                default_battery_consumption: 0.0,
+                default_water_consumption: 0.0,
+                default_speed: 0.0,
+                charging_rate: 0.0,
+                water_replenish_rate: 0.0,
+            },
+            state: VehicleState {
+                real_time_battery: 0.0,
+                real_time_water: 0.0,
+                real_time_garbage: 0.0,
+                real_time_speed: 0.0,
+                real_time_mileage: 0.0,
+                real_time_position: WayPoint { x: 0.0, y: 0.0 },
+                status: WorkStatus::Off,
+                work_mode: WorkMode::NONE,
+                operation_mode: OperationMode::NONE,
+            },
+        }
+    }
+}
+
+///
+
+impl From<&libmodel::sanitation::vehicle::WorkMode> for WorkMode {
+    fn from(value: &libmodel::sanitation::vehicle::WorkMode) -> Self {
+        match value {
+            libmodel::sanitation::vehicle::WorkMode::NONE => WorkMode::NONE,
+            libmodel::sanitation::vehicle::WorkMode::DrySweep => {
+                WorkMode::DrySweep
+            }
+            libmodel::sanitation::vehicle::WorkMode::WetSweep => {
+                WorkMode::WetSweep
+            }
+            libmodel::sanitation::vehicle::WorkMode::BlowSweep => {
+                WorkMode::BlowSweep
+            }
+            libmodel::sanitation::vehicle::WorkMode::WashSweep => {
+                WorkMode::WashSweep
+            }
+            libmodel::sanitation::vehicle::WorkMode::Washing => {
+                WorkMode::Washing
+            }
+        }
+    }
+}
+impl From<&libmodel::sanitation::vehicle::OperationMode> for OperationMode {
+    fn from(value: &libmodel::sanitation::vehicle::OperationMode) -> Self {
+        match value {
+            libmodel::sanitation::vehicle::OperationMode::NONE => {
+                OperationMode::NONE
+            }
+            libmodel::sanitation::vehicle::OperationMode::DumpGarbage => {
+                OperationMode::DumpGarbage
+            }
+            libmodel::sanitation::vehicle::OperationMode::Charging => {
+                OperationMode::Charging
+            }
+            libmodel::sanitation::vehicle::OperationMode::WaterPump => {
+                OperationMode::WaterPump
+            }
+            libmodel::sanitation::vehicle::OperationMode::DustbinCleaning => {
+                OperationMode::DustbinCleaning
+            }
+        }
+    }
+}
+
+
+impl From<&libmodel::sanitation::vehicle::Vehicle> for Vehicle {
+    fn from(value: &libmodel::sanitation::vehicle::Vehicle) -> Self {
+        let mut status = WorkStatus::Off;
+        let mut work_mode = WorkMode::NONE;
+        let mut operation_mode = OperationMode::NONE;
+        match value.state.status.clone() {
+            libmodel::sanitation::vehicle::WorkStatus::Work(r) => {
+                status = WorkStatus::Work;
+                work_mode = WorkMode::from(&r);
+            }
+            libmodel::sanitation::vehicle::WorkStatus::Operation(r) => {
+                status = WorkStatus::Work;
+                operation_mode = OperationMode::from(&r);
+            }
+            libmodel::sanitation::vehicle::WorkStatus::Transfer => {}
+            libmodel::sanitation::vehicle::WorkStatus::Park => {}
+            libmodel::sanitation::vehicle::WorkStatus::Off => {}
+        };
+
+        Vehicle {
+            r#type: match value.r#type {
+                libmodel::sanitation::vehicle::VehicleType::Unicorn => {
+                    VehicleType::Unicorn
+                }
+                libmodel::sanitation::vehicle::VehicleType::Kylin => {
+                    VehicleType::Kylin
+                }
+                libmodel::sanitation::vehicle::VehicleType::Hulk => {
+                    VehicleType::Hulk
+                }
+            },
+            name: value.name.clone(),
+            param: VehicleBaseParam {
+                max_battery_capacity: value.param.max_water_capacity,
+                max_water_capacity: value.param.max_water_capacity,
+                max_recharge_mileage: value.param.max_recharge_mileage,
+                max_garbage_capacity: value.param.max_garbage_capacity,
+                max_speed: value.param.max_speed,
+                default_battery_consumption: value
+                    .param
+                    .default_battery_consumption,
+                default_water_consumption: value
+                    .param
+                    .default_water_consumption,
+                default_speed: value.param.default_speed,
+                charging_rate: value.param.charging_rate,
+                water_replenish_rate: value.param.water_replenish_rate,
+            },
+            state: VehicleState {
+                real_time_battery: value.state.real_time_battery,
+                real_time_water: value.state.real_time_water,
+                real_time_garbage: value.state.real_time_garbage,
+                real_time_speed: value.state.real_time_speed,
+                real_time_mileage: value.state.real_time_mileage,
+                real_time_position: WayPoint { x: 0.0, y: 0.0 },
+                status,
+                work_mode,
+                operation_mode,
+            },
+        }
+    }
 }

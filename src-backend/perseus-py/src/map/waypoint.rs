@@ -1,4 +1,4 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 ///
 #[pyclass(set_all)]
@@ -43,6 +43,15 @@ impl Into<libmap::common::util::Vec2d> for &WayPoint {
         libmap::common::util::Vec2d {
             x: self.x,
             y: self.y,
+        }
+    }
+}
+
+impl From<&libmodel::sanitation::util::Vec2d> for WayPoint {
+    fn from(value: &libmodel::sanitation::util::Vec2d) -> Self {
+        WayPoint {
+            x: value.x,
+            y: value.y,
         }
     }
 }

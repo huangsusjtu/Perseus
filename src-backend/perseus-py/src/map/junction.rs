@@ -1,9 +1,9 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 use crate::map::waypoint::WayPoint;
 
-///
-#[pyclass]
+/// junction which connect road
+#[pyclass(set_all, get_all)]
 #[derive(Clone)]
 pub struct JunctionInfo {
     pub id: i32, // 唯一ID
@@ -12,7 +12,9 @@ pub struct JunctionInfo {
     pub polygon: Vec<WayPoint>, // 区域
     pub road_connections: Vec<ConnectionInfo>,
 }
-#[pyclass]
+
+/// junction connection info which road in and out
+#[pyclass(set_all, get_all)]
 #[derive(Clone)]
 pub struct ConnectionInfo {
     pub id: i32,
@@ -23,29 +25,6 @@ pub struct ConnectionInfo {
 //
 #[pymethods]
 impl JunctionInfo {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn name(&self) -> PyResult<String> {
-        Ok(self.name.clone())
-    }
-    #[getter]
-    fn center(&self) -> PyResult<WayPoint> {
-        Ok(self.center.clone())
-    }
-    #[getter]
-    fn road_connections(&self) -> PyResult<Vec<ConnectionInfo>> {
-        Ok(self.road_connections.clone())
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "JunctionInfo (id:{}, name:{}, center:{:?}) ",
-            self.id, &self.name, self.center
-        )
-    }
     fn __str__(&self) -> String {
         format!(
             "JunctionInfo (id:{}, name:{}, center:{:?})",
@@ -55,17 +34,11 @@ impl JunctionInfo {
 }
 #[pymethods]
 impl ConnectionInfo {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn road_in(&self) -> PyResult<String> {
-        Ok(self.road_in.clone())
-    }
-    #[getter]
-    fn road_out(&self) -> PyResult<String> {
-        Ok(self.road_out.clone())
+    fn __str__(&self) -> String {
+        format!(
+            "ConnectionInfo (id:{}, road_in:{}, road_out:{:?})",
+            self.id, self.road_in, self.road_out
+        )
     }
 }
 

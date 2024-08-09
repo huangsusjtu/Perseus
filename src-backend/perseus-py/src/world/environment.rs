@@ -1,7 +1,8 @@
 use pyo3::prelude::*;
 
-/// 自然環境
-#[pyclass(set_all)]
+
+/// 描述仿真场景里的自然环境（气温、天气、季节、工作时段）
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct Environment {
     pub temperature_range: [f64; 2], // 气温范围
@@ -11,6 +12,7 @@ pub struct Environment {
     pub work_time: Vec<[f32; 2]>,    // 当天的作业时间段
 }
 
+/// 季节类型
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone, Debug)]
 pub enum SeasonType {
@@ -20,6 +22,7 @@ pub enum SeasonType {
     Winter,
 }
 
+/// 天气类型
 #[pyclass(eq, eq_int)]
 #[derive(PartialEq, Clone, Debug)]
 pub enum WeatherType {
@@ -35,25 +38,27 @@ pub enum WeatherType {
 ///
 #[pymethods]
 impl Environment {
-    #[getter]
-    fn temperature(&self) -> PyResult<[f64; 2]> {
-        Ok(self.temperature_range.clone())
+    #[new]
+    fn new() -> Self {
+        Environment {
+            temperature_range: [20.0, 25.0],
+            weather: WeatherType::Fine,
+            season: SeasonType::Spring,
+            defoliation: false,
+            work_time: vec![[8.0, 17.0]],
+        }
     }
-    #[getter]
-    fn weather(&self) -> PyResult<WeatherType> {
-        Ok(self.weather.clone())
-    }
-    #[getter]
-    fn season(&self) -> PyResult<SeasonType> {
-        Ok(self.season.clone())
-    }
-    #[getter]
-    fn defoliation(&self) -> PyResult<bool> {
-        Ok(self.defoliation)
-    }
-    #[getter]
-    fn work_time(&self) -> PyResult<Vec<[f32; 2]>> {
-        Ok(self.work_time.clone())
+
+    fn __str__(&self) -> String {
+        format!(
+            "Environment (temperature:{:?},weather:{:?}, season:{:?}, \
+             defoliation:{}, work_time:{:?}) ",
+            self.temperature_range,
+            self.weather,
+            self.season,
+            self.defoliation,
+            self.work_time
+        )
     }
 }
 

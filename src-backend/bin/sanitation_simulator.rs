@@ -1,3 +1,5 @@
+mod editor;
+
 use std::path::PathBuf;
 
 use clap::{Args, Parser};

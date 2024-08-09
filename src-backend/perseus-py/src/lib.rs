@@ -11,25 +11,47 @@ pub use map::Map;
 use once_cell::sync::OnceCell;
 use pyo3::exceptions::PyTypeError;
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
+use pyo3::wrap_pymodule;
+pub use world::scenario::Scenario;
 pub use world::World;
 
-/// A Python module implemented in Rust.
+/// python sdk for perseus implemented in Rust.
 #[pymodule(name = "perseus")]
-fn perseus(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(init, m)?)?;
-    m.add_function(wrap_pyfunction!(list_map, m)?)?;
-    m.add_function(wrap_pyfunction!(get_map, m)?)?;
-    m.add_function(wrap_pyfunction!(list_scenario, m)?)?;
-    m.add_function(wrap_pyfunction!(list_world, m)?)?;
-    m.add_function(wrap_pyfunction!(get_world, m)?)?;
+fn perseus_init(
+    py: Python<'_>, root_module: &Bound<'_, PyModule>,
+) -> PyResult<()> {
+    // 初始化
+    root_module.add_function(wrap_pyfunction!(init, root_module)?)?;
+    // 一级API
+    root_module.add_function(wrap_pyfunction!(list_map, root_module)?)?;
+    root_module.add_function(wrap_pyfunction!(get_map, root_module)?)?;
+    root_module.add_function(wrap_pyfunction!(list_scenario, root_module)?)?;
+    root_module.add_function(wrap_pyfunction!(get_scenario, root_module)?)?;
+    root_module.add_function(wrap_pyfunction!(list_world, root_module)?)?;
+    root_module.add_function(wrap_pyfunction!(get_world, root_module)?)?;
 
-    map::mod_init(m)?;
-    // world::mod_init(m)?;
+    // 注册子模块
+    root_module.add_wrapped(wrap_pymodule!(map::map))?;
+    root_module.add_wrapped(wrap_pymodule!(world::world))?;
+
+    let sys = PyModule::import_bound(py, "sys")?;
+    let sys_modules: Bound<'_, PyDict> =
+        sys.getattr("modules")?.downcast_into()?;
+    sys_modules.set_item("perseus.map", root_module.getattr("map")?)?;
+    sys_modules.set_item("perseus.world", root_module.getattr("world")?)?;
+
     Ok(())
 }
 
+static mut LOG_CLEANER: Option<Box<dyn FnOnce()>> = None;
+
 #[pyfunction]
 fn init(map_dir: String, scenario_dir: String) -> PyResult<()> {
+    unsafe {
+        LOG_CLEANER = Some(libutil::log::init_log().unwrap());
+    }
+
     let eventbus = libutil::eventbus::EventBus::default();
     let apps_state = libsimulator::AppState {
         eventbus: eventbus.clone(),
@@ -76,10 +98,15 @@ fn list_scenario() -> PyResult<Vec<String>> {
     }
 }
 
-// #[pyfunction]
-// fn get_scenario(map_name: String) -> PyResult<Map> {
-//
-// }
+#[pyfunction]
+fn get_scenario(scenario_name: String) -> PyResult<Scenario> {
+    let res =
+        unsafe { APP_DATA.get().unwrap().scenario_svc.get(&scenario_name) };
+    match res {
+        Ok(r) => Ok(Scenario::from(&r)),
+        Err(e) => Err(PyTypeError::new_err(e.to_string())),
+    }
+}
 
 #[pyfunction]
 fn list_world() -> PyResult<Vec<String>> {
@@ -98,6 +125,7 @@ fn get_world(name: String) -> PyResult<World> {
             name: r.name.clone(),
             map_name: "".to_string(),
 
+            scenario_name: "".to_string(),
             simulator_ref: {
                 let simulator = get_data()
                     .sim_svc
@@ -132,7 +160,6 @@ pub(crate) fn get_sim_svc<'a>() -> Arc<dyn SimulatorServiceInterface> {
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
-    use pyo3::exceptions::PyTypeError;
 
     use crate::{get_data, list_map, set_data};
 
@@ -159,11 +186,9 @@ mod tests {
         };
         set_data(apps_state);
         let res = get_data().map_svc.list();
-        let t= match res {
+        let t = match res {
             Ok(r) => (),
             Err(e) => (),
         };
-
-
     }
 }

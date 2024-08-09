@@ -47,6 +47,7 @@ impl SanitationSimulator {
     pub fn attach_map(&mut self, map_ref: libmap::MapRef) -> OwnResult<()> {
         self.world.load_map(map_ref);
         self.status = SimStatus::MapReady;
+        tracing::info!("{} attach_map {}", &self.world.sd_map.header);
         Ok(())
     }
     pub fn attach_scenario(
@@ -54,6 +55,7 @@ impl SanitationSimulator {
     ) -> OwnResult<()> {
         self.world.load_scenario(scenario);
         self.status = SimStatus::SceneReady;
+        tracing::info!("attach_scenario");
         Ok(())
     }
 

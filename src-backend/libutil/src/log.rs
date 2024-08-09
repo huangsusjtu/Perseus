@@ -5,7 +5,7 @@ use tracing_subscriber::{fmt, EnvFilter};
 
 pub fn init_log() -> anyhow::Result<Box<dyn FnOnce()>> {
     let log_level = EnvFilter::builder()
-        .with_default_directive(LevelFilter::DEBUG.into())
+        .with_default_directive(LevelFilter::INFO.into())
         .from_env_lossy();
 
     let local_time = tracing_subscriber::fmt::time::OffsetTime::new(

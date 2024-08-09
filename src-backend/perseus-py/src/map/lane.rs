@@ -1,7 +1,7 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 ///
-#[pyclass]
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct LaneInfo {
     pub id: i32,
@@ -26,25 +26,6 @@ pub enum LaneType {
 ///
 #[pymethods]
 impl LaneInfo {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn r#type(&self) -> PyResult<LaneType> {
-        Ok(self.r#type.clone())
-    }
-    #[getter]
-    fn width(&self) -> PyResult<f32> {
-        Ok(self.width)
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "LaneInfo (id:{}, type:{:?}, width:{}) ",
-            self.id, self.r#type, self.width
-        )
-    }
     fn __str__(&self) -> String {
         format!(
             "LaneInfo (id:{}, type:{:?}, width:{})",

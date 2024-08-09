@@ -1,9 +1,9 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 use crate::map::waypoint::WayPoint;
 
-///
-#[pyclass]
+/// clean area which should clean by sanitation on map
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct CleanArea {
     pub id: i32,
@@ -14,23 +14,6 @@ pub struct CleanArea {
 
 #[pymethods]
 impl CleanArea {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn name(&self) -> PyResult<String> {
-        Ok(self.name.clone())
-    }
-    #[getter]
-    fn position(&self) -> PyResult<WayPoint> {
-        Ok(self.position.clone())
-    }
-    #[getter]
-    fn polygon(&self) -> PyResult<Vec<WayPoint>> {
-        Ok(self.polygon.clone())
-    }
-
     fn __repr__(&self) -> String {
         format!(
             "CleanArea (id:{},name:{}, position:{:?}) ",

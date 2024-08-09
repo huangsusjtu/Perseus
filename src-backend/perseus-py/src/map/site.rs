@@ -1,9 +1,9 @@
-use pyo3::{pyclass, pymethods, PyResult};
+use pyo3::prelude::*;
 
 use crate::map::waypoint::WayPoint;
 
 ///
-#[pyclass]
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct SiteInfo {
     pub id: i32, // 唯一ID
@@ -14,29 +14,6 @@ pub struct SiteInfo {
 
 #[pymethods]
 impl SiteInfo {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn name(&self) -> PyResult<String> {
-        Ok(self.name.clone())
-    }
-    #[getter]
-    fn position(&self) -> PyResult<SiteType> {
-        Ok(self.r#type.clone())
-    }
-    #[getter]
-    fn polygon(&self) -> PyResult<WayPoint> {
-        Ok(self.position.clone())
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "SiteInfo (id:{},name:{}, type:{:?}, position:{:?})",
-            self.id, &self.name, self.r#type, &self.position
-        )
-    }
     fn __str__(&self) -> String {
         format!(
             "SiteInfo (id:{},name:{}, type:{:?}, position:{:?})",

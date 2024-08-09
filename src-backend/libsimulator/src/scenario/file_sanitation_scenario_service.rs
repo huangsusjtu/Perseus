@@ -35,7 +35,16 @@ impl FileSanitationScenarioServiceImpl {
             {
                 continue;
             }
-            let scenario = libmodel::sanitation::parse(scene_xml_file_path)?;
+            let name = scene_xml_file_path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string();
+
+            let mut scenario =
+                libmodel::sanitation::parse(scene_xml_file_path)?;
+            scenario.header.name = name;
             scenario_data_table.insert(scenario.header.name.clone(), scenario);
         }
 

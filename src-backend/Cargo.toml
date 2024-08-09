@@ -8,6 +8,10 @@ edition = '2021'
 name = 'sanitation_simulator'
 path = './bin/sanitation_simulator.rs'
 
+[[bin]]
+name = 'editor'
+path = './bin/editor.rs'
+
 [profile.release]
 panic = 'abort'
 

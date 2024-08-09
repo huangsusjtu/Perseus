@@ -1,12 +1,9 @@
-use std::ffi::CStr;
-
-use pyo3::impl_::pyclass::{LazyTypeObject, PyClassItemsIter};
-use pyo3::{pyclass, pymethods, PyResult, Python};
+use pyo3::prelude::*;
 
 use crate::map::lane::LaneInfo;
 
 ///
-#[pyclass]
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct RoadInfo {
     pub id: i32, // 唯一ID
@@ -31,7 +28,7 @@ pub enum RoadType {
     SideWalk = 3, // 人行道
 }
 
-#[pyclass]
+#[pyclass(set_all,get_all)]
 #[derive(Clone)]
 pub struct RoadLink {
     pub link_type: String,    // predecessor or successor
@@ -42,41 +39,6 @@ pub struct RoadLink {
 ///
 #[pymethods]
 impl RoadInfo {
-    #[getter]
-    fn id(&self) -> PyResult<i32> {
-        Ok(self.id)
-    }
-    #[getter]
-    fn name(&self) -> PyResult<String> {
-        Ok(self.name.clone())
-    }
-    #[getter]
-    fn length(&self) -> PyResult<f64> {
-        Ok(self.length)
-    }
-    #[getter]
-    fn r#type(&self) -> PyResult<RoadType> {
-        Ok(self.r#type.clone())
-    }
-    #[getter]
-    fn left(&self) -> PyResult<Vec<LaneInfo>> {
-        Ok(self.left_lanes.clone())
-    }
-    #[getter]
-    fn right(&self) -> PyResult<Vec<LaneInfo>> {
-        Ok(self.right_lanes.clone())
-    }
-    #[getter]
-    fn link(&self) -> PyResult<Vec<RoadLink>> {
-        Ok(self.link.clone())
-    }
-
-    fn __repr__(&self) -> String {
-        format!(
-            "Road (id:{},name:{}, length:{}, type:{:?})",
-            self.id, &self.name, self.length, self.r#type
-        )
-    }
     fn __str__(&self) -> String {
         format!(
             "Road (id:{},name:{}, length:{}, type:{:?})",

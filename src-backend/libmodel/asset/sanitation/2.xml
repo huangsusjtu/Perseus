@@ -1,5 +1,5 @@
 <SanitationScenario>
-  <header name="default" map="base_map" date="2024-08-06 17:23:36.996457998 +08:00"/>
+  <header name="1.xml" map="base_map" date="2024-08-06 17:23:36.996457998 +08:00"/>
   <environment temperature="0 25" weather="Fine Rainy" season="Spring" defoliation="false">
     <work_time range="5 10"/>
     <work_time range="15 20"/>
