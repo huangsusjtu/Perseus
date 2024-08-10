@@ -24,7 +24,6 @@ enum SimStatus {
     Stop,
 }
 
-
 impl SanitationSimulator {
     pub fn new(event_bus: libutil::eventbus::EventBus) -> Self {
         SanitationSimulator {
@@ -47,7 +46,6 @@ impl SanitationSimulator {
     pub fn attach_map(&mut self, map_ref: libmap::MapRef) -> OwnResult<()> {
         self.world.load_map(map_ref);
         self.status = SimStatus::MapReady;
-        tracing::info!("{} attach_map {}", &self.world.sd_map.header);
         Ok(())
     }
     pub fn attach_scenario(
@@ -82,7 +80,8 @@ impl SanitationSimulator {
     }
 
     pub fn step(&mut self, _duration: Duration) -> OwnResult<()> {
-        //  todo!(调用物理模型刷新)
+        //  todo
+
         Ok(())
     }
 

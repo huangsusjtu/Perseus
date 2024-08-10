@@ -53,6 +53,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
                 self.event_bus.clone(),
             ))),
         );
+        tracing::info!("create simulator:{}", name);
         return Ok(SimulatorInfo {
             name: name.to_string(),
         });
@@ -61,7 +62,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
         if self.simulate_instances.remove(name).is_none() {
             return Err(UniformError::NotFound(name.to_string()));
         }
-
+        tracing::info!("delete simulator:{}", name);
         return Ok(());
     }
     fn get(&self, name: &str) -> OwnResult<Arc<RwLock<SanitationSimulator>>> {
@@ -69,6 +70,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
             return Err(UniformError::NotFound(name.to_string()));
         }
         let t = self.simulate_instances.get(name).unwrap();
+        tracing::info!("get simulator:{}", name);
         Ok(t.clone())
     }
 
@@ -82,6 +84,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
                     return Err(UniformError::DeserializeErr);
                 }
             };
+            tracing::info!("save simulator:{}", name);
             Ok(())
         } else {
             Err(UniformError::NotFound(name.to_string()))
@@ -93,6 +96,11 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
     ) -> OwnResult<()> {
         let ins = self.simulate_instances.get(sim_name);
         return if let Some(sim) = ins {
+            tracing::info!(
+                "simulator:{}, load_map:{}",
+                sim_name,
+                &map_ref.header.name
+            );
             _ = sim.value().write().unwrap().attach_map(map_ref);
             Ok(())
         } else {
@@ -105,6 +113,11 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
     ) -> OwnResult<()> {
         let ins = self.simulate_instances.get(sim_name);
         return if let Some(sim) = ins {
+            tracing::info!(
+                "simulator:{}, load_scenario:{}",
+                sim_name,
+                &scenario.header.name
+            );
             _ = sim.value().write().unwrap().attach_scenario(scenario);
             Ok(())
         } else {
@@ -116,6 +129,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
         let ins = self.simulate_instances.get_mut(sim_name);
         return if let Some(sim) = ins {
             _ = sim.value().write().unwrap().start();
+            tracing::info!("simulator:{} start", sim_name);
             Ok(())
         } else {
             Err(UniformError::NotFound(sim_name.to_string()))
@@ -126,6 +140,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
         let ins = self.simulate_instances.get_mut(sim_name);
         return if let Some(sim) = ins {
             _ = sim.value().write().unwrap().stop();
+            tracing::info!("simulator:{} stop", sim_name);
             Ok(())
         } else {
             Err(UniformError::NotFound(sim_name.to_string()))
@@ -136,6 +151,7 @@ impl SimulatorServiceInterface for SanitationSimulatorServiceImpl {
         _ = self.simulate_instances.iter().map(|v| {
             _ = v.value().write().unwrap().stop();
         });
+        tracing::info!("simulator stop_all");
         Ok(())
     }
 }

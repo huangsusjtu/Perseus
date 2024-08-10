@@ -1,13 +1,13 @@
 [package]
 name = "libwebserver"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-libutil = { path = '../libutil' }
-libmodel = { path = '../libmodel' }
-libmap = { path = '../libmap' }
-libsimulator = { path = '../libsimulator' }
+libutil = { workspace = true}
+libmodel = { workspace = true}
+libmap = { workspace = true}
+libsimulator = { workspace = true}
 
 tracing = { workspace = true }
 chrono = { workspace = true }

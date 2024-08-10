@@ -1,4 +1,4 @@
-mod editor;
+
 
 use std::path::PathBuf;
 

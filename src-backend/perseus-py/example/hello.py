@@ -16,6 +16,8 @@ map_data = perseus.get_map(map_name)
 
 roads = map_data.get_roads()
 print(roads, len(roads))
+for r in roads:
+    print("r", r)
 junctions = map_data.get_junctions()
 print(junctions, len(junctions))
 sites = map_data.get_sites()

@@ -1,10 +1,10 @@
 [package]
 name = "libmap"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-libformat = { path = '../libformat' }
+libformat = { workspace = true}
 
 anyhow = { workspace = true }
 chrono = { workspace = true }

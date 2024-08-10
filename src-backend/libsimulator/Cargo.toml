@@ -1,13 +1,13 @@
 [package]
 name = "libsimulator"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
-libmap = { path = '../libmap' }
-libformat = { path = '../libformat' }
-libutil = { path = '../libutil' }
-libmodel = { path = '../libmodel' }
+libmap = { workspace = true}
+libformat = { workspace = true}
+libutil = { workspace = true}
+libmodel = { workspace = true}
 
 anyhow = { workspace = true }
 async-trait = { workspace = true }

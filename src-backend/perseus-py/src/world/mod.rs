@@ -98,6 +98,11 @@ impl World {
             .unwrap()
             .step(std::time::Duration::from_millis(millis))
             .expect("step");
+
+        // 同步simulator_ref的数据过来
+        // self.simulator_ref
+        //     .read()
+        //     .unwrap();
         Ok(())
     }
 }

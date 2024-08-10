@@ -1,53 +1,42 @@
-[package]
-name = 'perseus-service'
-version = '0.0.1'
-edition = '2021'
 
-
-[[bin]]
-name = 'sanitation_simulator'
-path = './bin/sanitation_simulator.rs'
-
-[[bin]]
-name = 'editor'
-path = './bin/editor.rs'
 
 [profile.release]
 panic = 'abort'
+# lto = true # VERY slightly smaller wasm
+# opt-level = 's' # 10-20% smaller wasm compared to `opt-level = 3`
+# opt-level = 1 # very slow and big wasm. Don't do this.
+#opt-level = 2 # fast and small wasm, basically same as `opt-level = 's'`
+# opt-level = 3 # unnecessarily large wasm for no performance gain
+
+# debug = true # include debug symbols, useful when profiling wasm
 
 
 [workspace]
-members = ['libutil', 'libformat', "libphysic", "libmap", "libsimulator", "libwebserver", "perseus-api", "perseus-py", "libmodel"]
-
-[dependencies]
-libutil = { path = './libutil' }
-libformat = { path = './libformat' }
-libmap = { path = './libmap' }
-libsimulator = { path = './libsimulator' }
-libwebserver = { path = './libwebserver' }
-libmodel = { path = './libmodel' }
-dashmap.workspace = true
-clap.workspace = true
-anyhow.workspace = true
-clap-handler.workspace = true
-clap_complete.workspace = true
-time.workspace = true
-time-macros.workspace = true
-tracing.workspace = true
-tracing-core.workspace = true
-tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time"] }
-tracing-appender.workspace = true
-
-jemallocator = "0.5.0"
-jemalloc-ctl = "0.5.0"
-jemalloc-sys = { version = "0.5.3", features = [
-    "stats",
-    "profiling",
-    "unprefixed_malloc_on_supported_platforms",
-] }
-lazy_static.workspace = true
+resolver = "2"
+members = [
+    'libutil',
+    'libformat',
+    "libphysic",
+    "libmap",
+    "libsimulator",
+    "libwebserver",
+    "perseus-api",
+    "perseus-py",
+    "libmodel",
+    "bin/*"
+]
 
 [workspace.dependencies]
+libutil = { version = "1.0.0", path = "./libutil"}
+libformat = { version = "1.0.0", path = "./libformat"}
+libphysic = { version = "1.0.0", path = "./libphysic"}
+libmap = { version = "1.0.0", path = "./libmap"}
+libsimulator = { version = "1.0.0", path = "./libsimulator"}
+libwebserver = { version = "1.0.0", path = "./libwebserver"}
+perseus-py = { version = "1.0.0", path = "./perseus-py"}
+libmodel = { version = "1.0.0", path = "./libmodel"}
+
+
 tracing = "0.1"
 tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time"] }
@@ -92,6 +81,4 @@ async-trait = "0.1.81"
 bytes = "1.6.0"
 actix-multipart = "0.7.2"
 
-[features]
-default = ["offline"]
-offline = ["libwebserver/offline"]
+
