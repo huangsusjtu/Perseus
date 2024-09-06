@@ -1,0 +1,6 @@
+[submodule "src-backend/third/three-d-asset"]
+	path = src-backend/third/three-d-asset
+	url = git@github.com:huangsusjtu/three-d-asset.git
+[submodule "src-backend/third/wavefront_obj"]
+	path = src-backend/third/wavefront_obj
+	url = git@github.com:huangsusjtu/wavefront_obj.git

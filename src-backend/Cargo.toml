@@ -36,6 +36,7 @@ libwebserver = { version = "1.0.0", path = "./libwebserver"}
 perseus-py = { version = "1.0.0", path = "./perseus-py"}
 libmodel = { version = "1.0.0", path = "./libmodel"}
 
+#three-d-asset = { path= "./third/three-d-asset"}
 
 tracing = "0.1"
 tracing-core = "0.1"
