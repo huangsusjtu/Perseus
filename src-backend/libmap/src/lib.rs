@@ -1,4 +1,3 @@
-#![feature(f16)]
 
 
 pub use map::SDMap;

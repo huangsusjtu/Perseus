@@ -21,7 +21,6 @@ protobuf = { workspace = true }
 [build-dependencies]
 protobuf-codegen = "3"
 protoc-rust = "^2.0"
-protobuf = "3"
 
 [features]
 default=[]

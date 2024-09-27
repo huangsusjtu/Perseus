@@ -22,17 +22,17 @@ impl Default for LineCurveInfo {
 }
 
 impl LineCurveInfo {
-    pub fn new(lines: Vec<GeometryLine>) -> Self {
+    pub fn new(segments: Vec<GeometryLine>) -> Self {
         let mut length = 0.0;
         let mut segments_length = vec![];
-        for l in lines.iter() {
+        for l in segments.iter() {
             length += l.length();
             segments_length.push(length);
         }
         let l = LineCurveInfo {
-            segments: lines,
-            segments_length: segments_length,
-            length: length,
+            segments,
+            segments_length,
+            length,
         };
         l
     }
@@ -47,9 +47,7 @@ impl LineCurveInfo {
         return self.segments[idx].get_smooth_point_and_head(s);
     }
 
-    pub fn get_smooth_range_points(
-        &self, s: f64, e: f64,
-    ) -> Vec<LanePoint> {
+    pub fn get_smooth_range_points(&self, s: f64, e: f64) -> Vec<LanePoint> {
         let mut r = Vec::default();
 
         for seg in self.segments.iter() {
@@ -58,9 +56,10 @@ impl LineCurveInfo {
             if split_s > split_e {
                 break;
             }
-            r.append(
-                &mut seg.get_dense_point_of_range(sub_s.max(s) as f32, sub_e.min(e) as f32),
-            );
+            r.append(&mut seg.get_dense_point_of_range(
+                sub_s.max(s) as f32,
+                sub_e.min(e) as f32,
+            ));
         }
 
         return r;
@@ -234,9 +233,35 @@ impl LineCurveInfo {
 
     // 左/右移得到新的线条
     pub fn translation(&self, offset: f64) -> Self {
-        let new_segments =
-            self.segments.iter().map(|seg| seg.translation(offset as f32)).collect();
+        let new_segments = self
+            .segments
+            .iter()
+            .map(|seg| seg.translation(offset as f32))
+            .collect();
         LineCurveInfo::new(new_segments)
+    }
+
+    pub fn reverse(&self) -> Self {
+        let mut segments : Vec<GeometryLine> = self.segments.iter().map(|v| {
+            v.reverse()
+        }).collect();
+        segments.reverse();
+        // for i in new_segments.iter_mut() {
+        //
+        // }
+
+        let mut length: f64 = 0.0;
+        let mut segments_length = vec![];
+        for l in segments.iter_mut() {
+            l.set_s(length as f32);
+            length += l.length();
+            segments_length.push(length);
+        }
+        LineCurveInfo {
+            segments,
+            segments_length,
+            length,
+        }
     }
 }
 
@@ -258,9 +283,7 @@ impl From<&proto_gen::map::LineCurve> for LineCurveInfo {
 impl Into<proto_gen::map::LineCurve> for &LineCurveInfo {
     fn into(self) -> proto_gen::map::LineCurve {
         proto_gen::map::LineCurve {
-            segments: self.segments.iter().map(|v| {
-                v.into()
-            }).collect(),
+            segments: self.segments.iter().map(|v| v.into()).collect(),
             length: self.length as f32,
             special_fields: Default::default(),
         }

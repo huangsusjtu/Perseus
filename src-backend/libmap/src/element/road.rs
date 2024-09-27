@@ -113,7 +113,7 @@ impl From<&libformat::opendrive::road::Road> for RoadInfo {
             for l in left_lanes.iter_mut() {
                 shift += l.width / 2.0;
                 l.central_lane_curve =
-                    road_center_line.translation(-shift as f64);
+                    road_center_line.reverse().translation(shift as f64);
             }
             left_lanes
         } else {

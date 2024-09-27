@@ -36,31 +36,31 @@ pub struct ArcLine {
 impl From<&libformat::opendrive::common::planview::Geometry> for GeometryLine {
     fn from(value: &libformat::opendrive::common::planview::Geometry) -> Self {
         if value.line.is_some() {
-            return GeometryLine::Straight(StraightLine {
+            GeometryLine::Straight(StraightLine {
                 hdg: value.hdg,
                 length: value.length,
                 s: value.s,
                 x: value.x,
                 y: value.y,
-            });
+            })
         } else if value.arc.is_some() {
-            return GeometryLine::Arc(ArcLine {
+            GeometryLine::Arc(ArcLine {
                 hdg: value.hdg,
                 length: value.length,
                 s: value.s,
                 x: value.x,
                 y: value.y,
                 curvature: value.arc.as_ref().unwrap().curvature,
-            });
+            })
         } else {
             // never here
-            return GeometryLine::Straight(StraightLine {
+            GeometryLine::Straight(StraightLine {
                 hdg: value.hdg,
                 length: value.length,
                 s: value.s,
                 x: value.x,
                 y: value.y,
-            });
+            })
         }
     }
 }
@@ -145,43 +145,50 @@ impl Into<proto_gen::map::line_curve::GeometryLine> for &GeometryLine {
         match self {
             GeometryLine::Straight(s) => {
                 proto_gen::map::line_curve::GeometryLine {
-                    straight: ::protobuf::MessageField::some(proto_gen::map::line_curve::StraightLine {
-                        hdg: s.hdg,
-                        length: s.length,
-                        start_s: s.s,
-                        position: ::protobuf::MessageField::some(proto_gen::map::LanePoint {
-                            x: s.x,
-                            y: s.y,
-                            z: 0.0,
+                    straight: ::protobuf::MessageField::some(
+                        proto_gen::map::line_curve::StraightLine {
+                            hdg: s.hdg,
+                            length: s.length,
+                            start_s: s.s,
+                            position: ::protobuf::MessageField::some(
+                                proto_gen::map::LanePoint {
+                                    x: s.x,
+                                    y: s.y,
+                                    z: 0.0,
+                                    special_fields: Default::default(),
+                                },
+                            ),
                             special_fields: Default::default(),
-                        }),
-                        special_fields: Default::default(),
-                    }),
+                        },
+                    ),
                     arc: ::protobuf::MessageField::none(),
                     special_fields: Default::default(),
                 }
             }
             GeometryLine::Arc(a) => proto_gen::map::line_curve::GeometryLine {
                 straight: ::protobuf::MessageField::none(),
-                arc: ::protobuf::MessageField::some(proto_gen::map::line_curve::ArcLine {
-                    hdg: a.hdg,
-                    length: a.length,
-                    start_s: a.s,
-                    position: ::protobuf::MessageField::some(proto_gen::map::LanePoint {
-                        x: a.x,
-                        y: a.y,
-                        z: 0.0,
+                arc: ::protobuf::MessageField::some(
+                    proto_gen::map::line_curve::ArcLine {
+                        hdg: a.hdg,
+                        length: a.length,
+                        start_s: a.s,
+                        position: ::protobuf::MessageField::some(
+                            proto_gen::map::LanePoint {
+                                x: a.x,
+                                y: a.y,
+                                z: 0.0,
+                                special_fields: Default::default(),
+                            },
+                        ),
+                        curvature: a.curvature,
                         special_fields: Default::default(),
-                    }),
-                    curvature: a.curvature,
-                    special_fields: Default::default(),
-                }),
+                    },
+                ),
                 special_fields: Default::default(),
-            }
+            },
         }
     }
 }
-
 
 /// 几何线的实现
 impl GeometryLine {
@@ -198,6 +205,13 @@ impl GeometryLine {
             GeometryLine::Arc(this) => this.s as f64,
         }
     }
+    pub fn set_s(&mut self, s: f32) {
+        match self {
+            GeometryLine::Straight(this) => this.s = s,
+            GeometryLine::Arc(this) => this.s = s,
+        }
+    }
+
     pub fn length(&self) -> f64 {
         match self {
             GeometryLine::Straight(this) => this.length as f64,
@@ -250,6 +264,15 @@ impl GeometryLine {
             GeometryLine::Arc(this) => {
                 GeometryLine::Arc(this.translation(offset))
             }
+        }
+    }
+
+    pub fn reverse(&self) -> Self {
+        match self {
+            GeometryLine::Straight(this) => {
+                GeometryLine::Straight(this.reverse())
+            }
+            GeometryLine::Arc(this) => GeometryLine::Arc(this.reverse()),
         }
     }
 }
@@ -362,6 +385,16 @@ impl StraightLine {
             y: n_y,
         };
     }
+
+    pub fn reverse(&self) -> Self {
+        StraightLine {
+            hdg: -self.hdg,
+            length: self.length,
+            s: self.s,
+            x: self.x + self.length as f64 * self.hdg.cos() as f64,
+            y: self.y + self.length as f64 * self.hdg.sin() as f64,
+        }
+    }
 }
 
 /// 圆弧线的实现
@@ -446,7 +479,7 @@ impl ArcLine {
             base_arc + self.curvature.signum() * (s.max(self.s) - self.s) / r; // 目标起点和X轴夹角
         let end_arc = base_arc
             + self.curvature.signum() * (e.min(self.s + self.length) - self.s)
-            / r; // 目标终点和X轴夹角
+                / r; // 目标终点和X轴夹角
 
         let mut ret = Vec::default();
         if self.curvature.is_sign_positive() {
@@ -461,7 +494,7 @@ impl ArcLine {
                     center_x + (r * target_arc.cos()) as f64,
                     center_y + (r * target_arc.sin()) as f64,
                 ));
-                target_arc = target_arc + 0.2 / r;
+                target_arc = target_arc + 0.01;
             }
         } else {
             let mut target_arc = start_arc;
@@ -475,7 +508,7 @@ impl ArcLine {
                     center_x + (r * target_arc.cos()) as f64,
                     center_y + (r * target_arc.sin()) as f64,
                 ));
-                target_arc = target_arc - 0.2 / r;
+                target_arc = target_arc - 0.01;
             }
         }
         return ret;
@@ -558,15 +591,15 @@ impl ArcLine {
     #[inline]
     fn base_info(&self) -> (f32, f32, f64, f64, f32, f32) {
         let r = 1.0 / self.curvature.abs(); // 半径
-        let to_center_direction =
-            self.hdg + self.curvature.signum() * PI / 2.0; // 圆弧起点往圆心的方向
-        // 圆心坐标
+        let to_center_direction = self.hdg + self.curvature.signum() * PI / 2.0; // 圆弧起点往圆心的方向
+                                                                                 // 圆心坐标
         let center_x = (to_center_direction.cos() * r) as f64 + self.x;
         let center_y = (to_center_direction.sin() * r) as f64 + self.y;
 
         let start_arc = (self.y - center_y).atan2(self.x - center_x); // 圆弧起点和X轴夹角
-        let end_arc =
-            to_2pi(start_arc + (self.curvature.signum() * self.length / r) as f64); // 圆弧终点 和 圆弧起点 之间弧度夹角
+        let end_arc = to_2pi(
+            start_arc + (self.curvature.signum() * self.length / r) as f64,
+        ); // 圆弧终点 和 圆弧起点 之间弧度夹角
         return (
             r,
             to_center_direction,
@@ -583,14 +616,27 @@ impl ArcLine {
             self.base_info();
         let new_r = r + self.curvature.signum() * offset; // 新半径
 
-        return ArcLine {
+        ArcLine {
             hdg: self.hdg,
             length: self.length * new_r / r,
             s: self.s,
             x: center_x + (new_r * start_arc.cos()) as f64,
             y: center_y + (new_r * start_arc.sin()) as f64,
-            curvature: self.curvature,
-        };
+            curvature: 1.0 / new_r,
+        }
+    }
+
+    pub fn reverse(&self) -> Self {
+        let (r, _to_center_direction, center_x, center_y, _start_arc, end_arc) =
+            self.base_info();
+        ArcLine {
+            hdg: -self.hdg,
+            length: self.length,
+            s: self.s,
+            x: center_x + (r * end_arc.cos()) as f64,
+            y: center_y + (r * end_arc.sin()) as f64,
+            curvature: -self.curvature,
+        }
     }
 }
 
@@ -668,5 +714,23 @@ mod tests {
         let r = line.get_projection(0.0, 4.0);
         // line.get_dense_point_of_range();
         // line.get_smooth_point_and_head();
+    }
+
+    #[test]
+    fn it_works_arc_2() {
+        let line = ArcLine {
+            hdg: (PI / 2.0) as f32,
+            length: 2.0 * PI as f32,
+            s: 0.0,
+            x: 2.0,
+            y: 0.0,
+            curvature: 1.0 / 2.0,
+        };
+        let t = line.base_info();
+        let line2 = line.translation(-1.0);
+        let t2 = line2.base_info();
+        let a = line.get_dense_point_of_range(0.0, line.length);
+        let b = line2.get_dense_point_of_range(0.0, line2.length);
+        println!("");
     }
 }
