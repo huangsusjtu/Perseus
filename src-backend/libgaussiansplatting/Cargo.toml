@@ -1,0 +1,17 @@
+[package]
+name = "libgs3d"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+tracing.workspace = true
+tracing-core.workspace = true
+tracing-subscriber = { version = "0.3", features = ["env-filter", "time", "local-time"] }
+tracing-appender.workspace = true
+#rfd = "0.15.0"
+cgmath = "0.18.0"
+half = "2.4.1"
+bus = "2.4.1"
+anyhow = "1.0.89"
+tokio = { version = "1.40.0", features = ["fs"] }

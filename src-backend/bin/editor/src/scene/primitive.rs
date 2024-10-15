@@ -2,19 +2,13 @@ use crate::scene::camera::Camera;
 use crate::scene::geometry::{
     generate_road_center_line, generate_road_lane, merge_geometry,
 };
-use crate::scene::pipeline::{PipelineCamera, PipelineFace, PipelineTriangle};
-use crate::scene::uniform::Uniforms;
-use crate::scene::vertex::{Vertex, VertexFixColor, VertexWithColor};
+use crate::scene::pipeline::PipelineOpenDrive;
 use iced::widget::shader;
 use iced::widget::shader::wgpu::{
     CommandEncoder, Device, Queue, TextureFormat, TextureView,
 };
 use iced::widget::shader::Storage;
 use iced::{Color, Rectangle, Size};
-use libmap::LaneInfo;
-use std::cell::RefCell;
-use std::f32::consts::PI;
-use std::sync::{Arc, Mutex};
 
 #[derive(Debug)]
 pub struct Primitive {
@@ -54,21 +48,29 @@ impl shader::Primitive for Primitive {
         // }
 
         {
-            if !storage.has::<PipelineCamera>() {
+            // 是否需要重新渲染
+            let mut need_new_pipeline = if !storage.has::<libmap::MapRef>() {
+                true
+            } else {
+                let map_ref = storage.get::<libmap::MapRef>().unwrap();
+                !map_ref.header.name.eq(&self.map.header.name)
+            };
+            need_new_pipeline =
+                need_new_pipeline || !storage.has::<PipelineOpenDrive>();
+
+            if need_new_pipeline {
                 // let face = self.generate_road_geometry();
-                let lines = generate_road_center_line(self.map.clone(), 0.2);
+                let road_lines =
+                    generate_road_center_line(self.map.clone(), 0.1);
                 let lanes = generate_road_lane(self.map.clone());
-                let lines = merge_geometry(lanes, lines);
-                storage.store(PipelineCamera::new(device, queue, format, lines));
+                let lines = merge_geometry(lanes, road_lines);
+                storage.store(PipelineOpenDrive::new(
+                    device, queue, format, lines,
+                ));
             }
             //upload data to GPU
-            let pipeline = storage.get_mut::<PipelineCamera>().unwrap();
-            pipeline.update(
-                device,
-                queue,
-                &Uniforms::new(&self.camera, Color::BLACK),
-                target_size,
-            );
+            let pipeline = storage.get_mut::<PipelineOpenDrive>().unwrap();
+            pipeline.update(device, queue, target_size, &self.camera);
         }
     }
 
@@ -91,7 +93,7 @@ impl shader::Primitive for Primitive {
 
         {
             //at this point our pipeline should always be initialized
-            let pipeline = storage.get::<PipelineCamera>().unwrap();
+            let pipeline = storage.get::<PipelineOpenDrive>().unwrap();
             //render primitive
             pipeline.render(target, encoder, viewport);
         }

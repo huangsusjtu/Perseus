@@ -1,9 +1,8 @@
-
 use libformat::opendrive::road::road::{Predecessor, Successor};
 
 use crate::element::lane::{LaneInfo, LaneType};
-use crate::element::line::GeometryLine;
 use crate::element::line_curve::LineCurveInfo;
+use crate::element::line_segment::GeometryLine;
 use crate::proto_gen;
 
 /// 道路定义
@@ -32,7 +31,6 @@ pub enum RoadType {
     Minor = 2,    // 辅道
     SideWalk = 3, // 人行道
 }
-
 
 #[derive(Debug)]
 pub struct RoadLink {
@@ -95,12 +93,12 @@ impl From<&libformat::opendrive::road::Road> for RoadInfo {
                 .plan_view
                 .geometry
                 .iter()
-                .map(|v| crate::element::line::GeometryLine::from(v))
+                .map(|v|  GeometryLine::from(v))
                 .collect();
             LineCurveInfo::new(v)
         };
 
-        // 这里只取第一个section； opendrive road里的lanes分多个section，
+        // 这里只取第一个section; opendrive road里的lanes分多个section，
         // 咱们简化点使用；
         let section = value.lanes.lane_section.first().unwrap();
         let left_lanes = if let Some(left) = section.left.as_ref() {
@@ -114,6 +112,26 @@ impl From<&libformat::opendrive::road::Road> for RoadInfo {
                 shift += l.width / 2.0;
                 l.central_lane_curve =
                     road_center_line.reverse().translation(shift as f64);
+
+                //
+                // let a = road_center_line.translation(-shift as f64);
+                // let b = a.reverse();
+                // let a1 = a.segments.first().unwrap();
+                // match a1 {
+                //     GeometryLine::Straight(_) => {}
+                //     GeometryLine::Arc(v) => {
+                //         let base = v.base_info();
+                //         println!("{:?}", base);
+                //     }
+                // }
+                // let b1 = b.segments.first().unwrap();
+                // match b1 {
+                //     GeometryLine::Straight(_) => {}
+                //     GeometryLine::Arc(v) => {
+                //         let base = v.base_info();
+                //         println!("{:?}", base);
+                //     }
+                // }
             }
             left_lanes
         } else {
@@ -354,7 +372,6 @@ impl Into<libformat::opendrive::road::Road> for &RoadInfo {
         }
     }
 }
-
 
 /// 自定义的map proto格式，用于前后端传输的
 impl From<proto_gen::map::Road> for RoadInfo {

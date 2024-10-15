@@ -3,6 +3,9 @@ use iced::widget::shader::wgpu;
 use iced::widget::shader::wgpu::util::DeviceExt;
 use iced::{Rectangle, Size};
 
+/// 绘制 普通三角形示例的pipeline
+///
+
 const SKY_TEXTURE_SIZE: u32 = 128;
 
 pub struct PipelineTriangle {

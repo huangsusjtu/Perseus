@@ -4,7 +4,6 @@ mod geometry;
 mod pipeline;
 mod primitive;
 mod texture;
-mod uniform;
 mod vertex;
 
 use crate::scene::camera::{Camera, CameraController};
@@ -27,10 +26,18 @@ pub struct Scene3d {
     map: libmap::MapRef,
     camera: Arc<Mutex<Camera>>,
     event_dispatch: Arc<Mutex<EventDispatch>>,
+
+    // 3dgs
+    pub(crate) splat_count: usize,
+    pub(crate) buffer: Vec<u8>,
+    pub(crate) tex_data: Vec<u32>,
+    pub(crate) tex_width: usize,
+    pub(crate) tex_height: usize,
+    prev_vp: Mutex<Vec<f32>>,
 }
 
 impl Scene3d {
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+    pub fn new() -> Self {
         let camera = Arc::new(Mutex::new(Camera::new_orthographic(
             glam::Vec3::new(0.0, 0.0, 200.0),
             glam::Vec3::new(0.0, 0.0, 0.0),
@@ -50,12 +57,31 @@ impl Scene3d {
         let camera_controller = CameraController::new(camera.clone());
         let event_dispatch: Arc<Mutex<EventDispatch>> = Default::default();
         event_dispatch.lock().unwrap().register(camera_controller);
-        let open_drive = libformat::opendrive::parse(path).unwrap();
         Scene3d {
-            map: Arc::new(libmap::SDMap::from(open_drive)),
+            map: Arc::new(libmap::SDMap::new()),
             camera: camera.clone(),
             event_dispatch,
+
+            splat_count: 0,
+            buffer: vec![],
+            tex_data: vec![],
+            tex_width: 0,
+            tex_height: 0,
+            prev_vp: Mutex::new(vec![]),
         }
+    }
+
+    pub fn select_map<P: AsRef<Path>>(&mut self, path: P) {
+        let open_drive = libformat::opendrive::parse(path).unwrap();
+        self.map = Arc::new(libmap::SDMap::from(open_drive));
+    }
+    
+    pub fn select_ply_file<P: AsRef<Path>>(&mut self, path: P) {
+        
+    }
+
+    async fn load_3dgs_scene() -> anyhow::Result<()> {
+        Ok(())
     }
 }
 

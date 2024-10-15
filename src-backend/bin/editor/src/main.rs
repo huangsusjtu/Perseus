@@ -9,8 +9,8 @@ mod app;
 
 mod scene;
 
-#[global_allocator]
-static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+// #[global_allocator]
+// static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 async fn run() -> anyhow::Result<()> {
     let _log_cleaner = log::init_log()?;

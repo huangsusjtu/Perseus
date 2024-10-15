@@ -1,7 +1,8 @@
 use crate::common::math::binary_search;
 use crate::common::util::{LanePoint, Vec2d};
-use crate::element::line::GeometryLine;
+use crate::element::line_segment::GeometryLine;
 use crate::proto_gen;
+use std::fmt::{Debug, Display, Formatter};
 
 /// 车道线定义
 #[derive(Debug, Clone)]
@@ -18,6 +19,12 @@ impl Default for LineCurveInfo {
             segments_length: Vec::new(),
             length: 0.0,
         }
+    }
+}
+
+impl Display for LineCurveInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LineCurveInfo  {:?}", self.segments,)
     }
 }
 
@@ -47,7 +54,9 @@ impl LineCurveInfo {
         return self.segments[idx].get_smooth_point_and_head(s);
     }
 
-    pub fn get_smooth_range_points(&self, s: f64, e: f64) -> Vec<LanePoint> {
+    pub fn get_smooth_range_points(
+        &self, s: f64, e: f64, step: f64,
+    ) -> Vec<LanePoint> {
         let mut r = Vec::default();
 
         for seg in self.segments.iter() {
@@ -59,6 +68,7 @@ impl LineCurveInfo {
             r.append(&mut seg.get_dense_point_of_range(
                 sub_s.max(s) as f32,
                 sub_e.min(e) as f32,
+                step as f32,
             ));
         }
 
@@ -242,17 +252,14 @@ impl LineCurveInfo {
     }
 
     pub fn reverse(&self) -> Self {
-        let mut segments : Vec<GeometryLine> = self.segments.iter().map(|v| {
-            v.reverse()
-        }).collect();
+        let mut segments: Vec<GeometryLine> =
+            self.segments.iter().map(|v| v.reverse()).collect();
         segments.reverse();
-        // for i in new_segments.iter_mut() {
-        //
-        // }
 
         let mut length: f64 = 0.0;
         let mut segments_length = vec![];
         for l in segments.iter_mut() {
+            l.reverse();
             l.set_s(length as f32);
             length += l.length();
             segments_length.push(length);

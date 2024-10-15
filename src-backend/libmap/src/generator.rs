@@ -3,10 +3,12 @@ use std::f32::consts::PI;
 use crate::common::math::{radian_of_two_radian, to_2pi};
 use crate::common::util::LanePoint;
 use crate::element::{LaneInfo, LaneType};
-use crate::element::{ArcLine, GeometryLine, StraightLine};
+
 use crate::element::LineCurveInfo;
 use crate::element::{RoadInfo, RoadType};
 use crate::map::SDMap;
+
+use crate::StraightLine;
 
 const K_MATH_EPSILON: f64 = 0.01;
 
@@ -15,7 +17,7 @@ const K_MATH_EPSILON: f64 = 0.01;
 
 impl From<&[LanePoint]> for LineCurveInfo {
     fn from(points: &[LanePoint]) -> Self {
-        let mut lines: Vec<GeometryLine> = Vec::new();
+        let mut lines: Vec<crate::GeometryLine> = Vec::new();
 
         let mut start_point = points[0].clone();
         let mut s = 0.0;
@@ -53,7 +55,7 @@ impl From<&[LanePoint]> for LineCurveInfo {
                 let straight_line_len =
                     start_point.distance(&straight_line_end) as f32;
                 if straight_line_len > K_MATH_EPSILON as f32 {
-                    let line = GeometryLine::Straight(StraightLine {
+                    let line = crate::GeometryLine::Straight(StraightLine {
                         hdg: to_2pi(hdg1 + PI),
                         length: straight_line_len,
                         s: s,
@@ -69,7 +71,7 @@ impl From<&[LanePoint]> for LineCurveInfo {
                     radian_of_two_radian(hdg1 as f64, hdg2 as f64) as f32;
                 let r = trip_len * (jiajiao / 2.0).tan(); // 半径
                 let len_of_radian = r * (PI - jiajiao);
-                let radian = GeometryLine::Arc(ArcLine {
+                let radian = crate::GeometryLine::Arc(crate::ArcLine {
                     hdg: to_2pi(hdg1 + PI),
                     length: len_of_radian,
                     s,
@@ -89,7 +91,7 @@ impl From<&[LanePoint]> for LineCurveInfo {
         let end_point = points[points.len() - 1].clone();
         let straight_line_len = start_point.distance(&end_point);
         if straight_line_len > K_MATH_EPSILON {
-            let line = GeometryLine::Straight(StraightLine {
+            let line = crate::GeometryLine::Straight(StraightLine {
                 hdg: (end_point.y - start_point.y)
                     .atan2(end_point.x - start_point.x)
                     as f32,

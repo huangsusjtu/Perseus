@@ -23,7 +23,8 @@ members = [
     "perseus-api",
     "perseus-py",
     "libmodel",
-    "bin/*"
+    "libgaussiansplatting",
+    "bin/*",
 ]
 
 [workspace.dependencies]

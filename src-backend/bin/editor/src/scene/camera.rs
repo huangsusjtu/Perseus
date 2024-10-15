@@ -74,6 +74,33 @@ impl Camera {
         proj * view
     }
 
+    pub fn build_projection_matrix(&self) -> glam::Mat4 {
+        let aspect_ratio =
+            self.viewport.unwrap().width / self.viewport.unwrap().height;
+        let proj = match self.r#type {
+            CameraType::Perspective { fovy } => glam::Mat4::perspective_rh(
+                fovy.to_radians(),
+                aspect_ratio,
+                self.z_near,
+                self.z_far,
+            ),
+            CameraType::Orthographic { height } => glam::Mat4::orthographic_rh(
+                -0.5 * aspect_ratio * height,
+                0.5 * aspect_ratio * height,
+                -0.5 * height,
+                0.5 * height,
+                self.z_near,
+                self.z_far,
+            ),
+        };
+
+        proj
+    }
+    pub fn build_view_matrix(&self) -> glam::Mat4 {
+        let view = glam::Mat4::look_at_rh(self.eye, self.target, self.up);
+        view
+    }
+
     pub fn eye(&self) -> glam::Vec3 {
         self.eye
     }

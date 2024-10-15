@@ -108,9 +108,20 @@ message LineCurve {
     LanePoint position = 4;
     float curvature = 5;
   }
+
+  message SpiralLine {
+    float hdg = 1;
+    float length = 2;
+    float start_s = 3;
+    LanePoint position = 4;
+    float curvature_start = 5;
+    float curvature_end = 6;
+  }
+
   message GeometryLine {
     StraightLine straight = 1;
     ArcLine arc = 2;
+    SpiralLine spiral = 3;
   }
 }
 
